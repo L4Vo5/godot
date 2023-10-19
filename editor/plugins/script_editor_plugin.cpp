@@ -922,18 +922,18 @@ void ScriptEditor::_queue_close_tabs() {
 		int idx = script_close_queue.front()->get();
 		script_close_queue.pop_front();
 
-		tab_container->set_current_tab(idx);
 		ScriptEditorBase *se = Object::cast_to<ScriptEditorBase>(tab_container->get_tab_control(idx));
 		if (se) {
 			// Maybe there are unsaved changes.
 			if (se->is_unsaved()) {
+				tab_container->set_current_tab(idx);
 				_ask_close_current_unsaved_tab(se);
-				erase_tab_confirm->connect(SceneStringNames::get_singleton()->visibility_changed, callable_mp(this, &ScriptEditor::_queue_close_tabs), CONNECT_ONE_SHOT);
+				erase_tab_confirm->connect(SceneStringNames::get_singleton()->visibility_changed, callable_mp(this, &ScriptEditor::_queue_close_tabs), CONNECT_ONE_SHOT | CONNECT_DEFERRED);
 				break;
 			}
 		}
 
-		_close_current_tab(false);
+		_close_tab(idx, false, false);
 	}
 	_update_find_replace_bar();
 }
